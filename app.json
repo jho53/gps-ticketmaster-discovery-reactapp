@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "GPS Ticketmaster Discovery App",
+    "slug": "gps-ticketmaster-discovery-app",
+    "privacy": "public",
+    "sdkVersion": "36.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/ticketmaster-splash.jpg",
+      "resizeMode": "contain",
+      "backgroundColor": "#019CDE"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    }
+  }
+}
