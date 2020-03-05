@@ -1,8 +1,17 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Text, View, Image, FlatList, ActivityIndicator } from "react-native";
+import {
+  Text,
+  View,
+  Image,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  TextInput,
+  Picker
+} from "react-native";
+import { ListItem, Card } from "react-native-elements";
 import * as Permissions from "expo";
-
 import Geohash from "latlon-geohash";
 
 import styles from "../styles/stylesheet";
@@ -20,6 +29,10 @@ export default class EventComponent extends Component {
     };
   }
 
+  static navigationOption = {
+    title: "Event Home"
+  };
+
   _getLocationPermissions = async () => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== "granted") {
@@ -29,11 +42,13 @@ export default class EventComponent extends Component {
     }
   };
 
-  getData(currentGeoHash) {
+  getData(currentGeoHash, radius = 100) {
     fetch(
       "https://app.ticketmaster.com/discovery/v2/events.json?" +
         `geoPoint=${currentGeoHash}` +
-        "&size=5" +
+        "&size=10" +
+        "&unit=km" +
+        `&radius=${radius}` +
         "&apikey=OC8LnDmVffkD5P1otAUbYqxGhOu5e6V7"
     )
       .then(response => response.json())
@@ -41,17 +56,19 @@ export default class EventComponent extends Component {
         let eventList = [];
 
         for (let i = 0; i < responseJson._embedded.events.length; i++) {
-          eventList.push(responseJson._embedded.events[i].name);
+          eventList.push(responseJson._embedded.events[i]);
         }
-        console.log(eventList)
-        return eventList;
+
+        console.log(eventList[0]);
+
+        this.setState({ eventArr: eventList });
       })
       .catch(error => {
         console.error(error);
       });
   }
 
-  UNSAFE_componentWillMount() {
+  componentDidMount() {
     this._getLocationPermissions();
     navigator.geolocation.getCurrentPosition(
       position => {
@@ -63,11 +80,12 @@ export default class EventComponent extends Component {
           9
         );
 
+        this.getData(geohash);
+
         this.setState({
           position: coordinates,
           geohashLocation: geohash,
-          isLoading: false,
-          eventArr: this.getData(geohash)
+          isLoading: false
         });
       },
       error => alert(JSON.stringify(error))
@@ -77,15 +95,12 @@ export default class EventComponent extends Component {
   render() {
     var isLoading = this.state.isLoading;
     var geohash = this.state.geohashLocation;
-    console.log(this.state.eventArr);
 
     if (isLoading) {
       return (
-        <View style={styles.container}>
-          <Image
-            source={require("../assets/ticketmaster-splash.jpg")}
-            style={styles.logo}
-          />
+        <View
+          style={{ justifyContent: "center", alignContent: "center", flex: 1 }}
+        >
           <ActivityIndicator size="large" color="#1D2D5C"></ActivityIndicator>
         </View>
       );
@@ -96,7 +111,54 @@ export default class EventComponent extends Component {
             source={require("../assets/ticketmaster-splash.jpg")}
             style={styles.logo}
           />
-          <FlatList style={{ borderWidth: 5, borderColor: "red" }} />
+          <View style={styles.searchNav}>
+            <TextInput style={styles.textInputBox}></TextInput>
+            <Picker style={styles.optionStyle}>
+              <Picker.Item label="Java" value="java" />
+              <Picker.Item label="JavaScript" value="js" />
+            </Picker>
+          </View>
+          <FlatList
+            data={this.state.eventArr}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate("EventDetails", {
+                    eventUrl: item.url
+                  });
+                }}
+              >
+                <Card
+                  image={{ uri: item.images[0].url }}
+                  imageStyle={{
+                    width: 200,
+                    height: 200,
+                    resizeMode: "cover"
+                  }}
+                >
+                  <View>
+                    <Text>{item.name}</Text>
+                    <Text>
+                      {item.priceRanges[0].min} - {item.priceRanges[0].max}
+                    </Text>
+                    <Text>{item._embedded.venues[0].address.line1}</Text>
+                    <Text>
+                      {item._embedded.venues[0].name} in{" "}
+                      {item._embedded.venues[0].city.name},{" "}
+                      {item._embedded.venues[0].state.stateCode}
+                    </Text>
+                    <Text>
+                      {item._embedded.venues[0].distance} km from your location
+                    </Text>
+                    <Text>
+                      Starting {item.dates.start.localDate} at{" "}
+                      {item.dates.start.localTime}
+                    </Text>
+                  </View>
+                </Card>
+              </TouchableOpacity>
+            )}
+          />
         </View>
       );
     }

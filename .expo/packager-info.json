@@ -1,10 +1,10 @@
 {
-  "devToolsPort": 19002,
+  "devToolsPort": 19003,
   "expoServerPort": 19000,
-  "packagerPort": 19001,
-  "packagerPid": 21444,
-  "expoServerNgrokUrl": "https://6i-qp5.anonymous.react-native-assignment-2.exp.direct",
-  "packagerNgrokUrl": "https://packager.6i-qp5.anonymous.react-native-assignment-2.exp.direct",
-  "ngrokPid": 23876,
+  "packagerPort": 19004,
+  "packagerPid": 18728,
+  "expoServerNgrokUrl": "https://6i-qp5.jho53.react-native-assignment-2.exp.direct",
+  "packagerNgrokUrl": "https://packager.6i-qp5.jho53.react-native-assignment-2.exp.direct",
+  "ngrokPid": 17516,
   "webpackServerPort": 19006
 }
