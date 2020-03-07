@@ -16,20 +16,29 @@ export default StyleSheet.create({
     height: 35,
     backgroundColor: "#019CDE",
     flexDirection: "row",
-    justifyContent: "center"
+    justifyContent: "flex-start"
   },
   textInputBox: {
     height: 20,
     backgroundColor: "white",
-    flex: 1,
+    flex: 3,
     margin: 5,
     borderRadius: 180
   },
   optionStyle: {
-    flex: 1,
+    flex: 2,
     backgroundColor: "white",
     height: 20,
     margin: 5,
     borderRadius: 180
-  }
+  },
+  // buttonStyle: {
+  //   flex: 1,
+  //   backgroundColor: "lightgreen",
+  //   height: 20,
+  //   margin: 5,
+  //   borderRadius: 180,
+  //   justifyContent: "center",
+  //   alignItems: "center"
+  // }
 });

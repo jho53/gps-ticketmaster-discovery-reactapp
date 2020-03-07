@@ -8,7 +8,8 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   TextInput,
-  Picker
+  Picker,
+  Button
 } from "react-native";
 import { ListItem, Card } from "react-native-elements";
 import * as Permissions from "expo";
@@ -25,7 +26,9 @@ export default class EventComponent extends Component {
       position: "unknown",
       geohashLocation: "unknown",
       isLoading: true,
-      eventArr: []
+      eventArr: [],
+      searchTerm: "",
+      radiusValue: "50"
     };
   }
 
@@ -42,11 +45,11 @@ export default class EventComponent extends Component {
     }
   };
 
-  getData(currentGeoHash, radius = 100) {
+  getData(currentGeoHash, radius = 50) {
     fetch(
       "https://app.ticketmaster.com/discovery/v2/events.json?" +
         `geoPoint=${currentGeoHash}` +
-        "&size=10" +
+        "&size=25" +
         "&unit=km" +
         `&radius=${radius}` +
         "&apikey=OC8LnDmVffkD5P1otAUbYqxGhOu5e6V7"
@@ -54,14 +57,14 @@ export default class EventComponent extends Component {
       .then(response => response.json())
       .then(responseJson => {
         let eventList = [];
+        let eventPrices = [];
 
         for (let i = 0; i < responseJson._embedded.events.length; i++) {
           eventList.push(responseJson._embedded.events[i]);
+          eventPrices.push(responseJson._embedded.events[i].priceRanges);
         }
-
-        console.log(eventList[0]);
-
         this.setState({ eventArr: eventList });
+        console.log(eventPrices);
       })
       .catch(error => {
         console.error(error);
@@ -92,6 +95,29 @@ export default class EventComponent extends Component {
     );
   }
 
+  _priceRangesVerify(item) {
+    try {
+      return (
+        <Text>
+          {item.priceRanges[0].min} - {item.priceRanges[0].max}
+        </Text>
+      );
+      throw new Error("Price TBA");
+    } catch (e) {
+      return <Text>Price TBA</Text>;
+    }
+  }
+
+  _findHighResPicture(item) {
+    let url = "";
+    for (var picObj in item.images) {
+      if (picObj.width > 1000) {
+        return picObj.url;
+      }
+    }
+    return url;
+  }
+
   render() {
     var isLoading = this.state.isLoading;
     var geohash = this.state.geohashLocation;
@@ -112,11 +138,30 @@ export default class EventComponent extends Component {
             style={styles.logo}
           />
           <View style={styles.searchNav}>
-            <TextInput style={styles.textInputBox}></TextInput>
-            <Picker style={styles.optionStyle}>
-              <Picker.Item label="Java" value="java" />
-              <Picker.Item label="JavaScript" value="js" />
-            </Picker>
+            <TextInput
+              style={styles.textInputBox}
+              placeholder="   Search..."
+            ></TextInput>
+            <View style={styles.optionStyle}>
+              <Picker
+                style={{ height: 20 }}
+                selectedValue={this.state.radiusValue}
+                onValueChange={itemValue => {
+                  this.setState({ radiusValue: itemValue });
+                  this.getData(this.state.geohashLocation, itemValue);
+                }}
+              >
+                <Picker.Item label="50 KM" value="50" />
+                <Picker.Item label="25 KM" value="25" />
+                <Picker.Item label="10 KM" value="10" />
+                <Picker.Item label="5 KM" value="5" />
+              </Picker>
+            </View>
+            {/* <TouchableOpacity style={styles.buttonStyle}>
+              <View>
+                <Text>Filter</Text>
+              </View>
+            </TouchableOpacity> */}
           </View>
           <FlatList
             data={this.state.eventArr}
@@ -124,31 +169,27 @@ export default class EventComponent extends Component {
               <TouchableOpacity
                 onPress={() => {
                   this.props.navigation.navigate("EventDetails", {
-                    eventUrl: item.url
+                    eventUrl: item.url,
+                    item: item
                   });
                 }}
               >
                 <Card
-                  image={{ uri: item.images[0].url }}
+                  image={{ uri: this._findHighResPicture(item) }}
                   imageStyle={{
                     width: 200,
-                    height: 200,
-                    resizeMode: "cover"
+                    height: 200
                   }}
+                  // title={item.name}
                 >
                   <View>
                     <Text>{item.name}</Text>
+                    {this._priceRangesVerify(item)}
                     <Text>
-                      {item.priceRanges[0].min} - {item.priceRanges[0].max}
-                    </Text>
-                    <Text>{item._embedded.venues[0].address.line1}</Text>
-                    <Text>
+                      {item._embedded.venues[0].address.line1},{" "}
                       {item._embedded.venues[0].name} in{" "}
                       {item._embedded.venues[0].city.name},{" "}
                       {item._embedded.venues[0].state.stateCode}
-                    </Text>
-                    <Text>
-                      {item._embedded.venues[0].distance} km from your location
                     </Text>
                     <Text>
                       Starting {item.dates.start.localDate} at{" "}

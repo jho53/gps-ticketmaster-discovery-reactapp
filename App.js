@@ -4,22 +4,33 @@ import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 
 import EventComponent from "./components/EventComponent";
+import EventWebView from "./components/EventWebView";
 import EventDetails from "./components/EventDetails";
 
 const EventStack = createStackNavigator(
   {
-    EventsHome: {
+    EventHome: {
       screen: EventComponent,
       navigationOptions: {
         headerShown: false
       }
     },
     EventDetails: {
-      screen: EventDetails
+      screen: EventDetails,
+      navigationOptions: {
+        title: "Back to Events",
+        headerStyle: {
+          backgroundColor: "#019CDE",
+        },
+        headerTintColor: "white"
+      }
+    },
+    EventWebView: {
+      screen: EventWebView
     }
   },
   {
-    initialRouteName: "EventsHome"
+    initialRouteName: "EventHome"
   }
 );
 
