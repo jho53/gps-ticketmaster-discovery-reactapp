@@ -4,10 +4,8 @@ import {
   View,
   Image,
   ActivityIndicator,
-  Dimensions,
-  ScrollView
+  TouchableOpacity
 } from "react-native";
-import { WebView } from "react-native-webview";
 
 import styles from "../styles/stylesheet";
 
@@ -15,7 +13,8 @@ export default class EventDetails extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true
+      isLoading: true,
+      qualityValue: 1500
     };
   }
 
@@ -29,13 +28,22 @@ export default class EventDetails extends Component {
     try {
       return (
         <Text>
-          {item.priceRanges[0].min} - {item.priceRanges[0].max}
+          {item.priceRanges[0].min.toFixed(2)} - {item.priceRanges[0].max.toFixed(2)}
         </Text>
       );
-      throw new Error("Price TBA");
     } catch (e) {
       return <Text>Price TBA</Text>;
     }
+  }
+
+  _findHighResPicture(item, qualityValue) {
+    let url = "";
+    for (var i in item.images) {
+      if (item.images[i].width > qualityValue) {
+        return item.images[i].url;
+      }
+    }
+    return url;
   }
 
   render() {
@@ -58,7 +66,7 @@ export default class EventDetails extends Component {
               height: "100%",
               flex: 1
             }}
-            source={{ uri: item.images[1].url }}
+            source={{ uri: this._findHighResPicture(item, this.state.qualityValue) }}
           />
           <View style={{ flex: 1.5 }}>
             <Text>{item.name}</Text>
@@ -77,7 +85,20 @@ export default class EventDetails extends Component {
               {item.dates.start.localTime}
             </Text>
           </View>
-        </View>
+          <View style={{ alignItems: "center", borderColor: "red", borderWidth: 2, bottom: 40 }}>
+            <TouchableOpacity
+              onPress={() => {
+                this.props.navigation.navigate("EventWebView", {
+                  eventUrl: item.url
+                })
+              }}
+            >
+              <View style={styles.buttonStyle}>
+                <Text style={{ fontSize: 16, color: "white" }}>Purchase Tickets</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View >
       );
     }
   }

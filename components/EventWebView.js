@@ -25,17 +25,14 @@ export default class EventWebView extends Component {
   }
 
   static navigationOptions = ({ navigation }) => {
-    const title = "Back to Events";
+    const title = "Back to Event Details";
 
     return {
       title: title,
       headerStyle: {
         backgroundColor: "#019CDE"
       },
-      headerTintColor: "white",
-      headerTitleStyle: {
-        fontWeight: "bold"
-      }
+      headerTintColor: "white"
     };
   };
 

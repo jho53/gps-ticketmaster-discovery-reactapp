@@ -28,7 +28,8 @@ export default class EventComponent extends Component {
       isLoading: true,
       eventArr: [],
       searchTerm: "",
-      radiusValue: "50"
+      radiusValue: "50",
+      qualityValue: 1000
     };
   }
 
@@ -45,14 +46,16 @@ export default class EventComponent extends Component {
     }
   };
 
-  getData(currentGeoHash, radius = 50) {
+  getData(currentGeoHash, radius = 50, keyword = "") {
     fetch(
       "https://app.ticketmaster.com/discovery/v2/events.json?" +
-        `geoPoint=${currentGeoHash}` +
-        "&size=25" +
-        "&unit=km" +
-        `&radius=${radius}` +
-        "&apikey=OC8LnDmVffkD5P1otAUbYqxGhOu5e6V7"
+      `geoPoint=${currentGeoHash}` +
+      "&size=25" +
+      "&unit=km" +
+      "&includeTBA=no" +
+      `&radius=${radius}` +
+      `&keyword=${keyword}` +
+      "&apikey=OC8LnDmVffkD5P1otAUbYqxGhOu5e6V7"
     )
       .then(response => response.json())
       .then(responseJson => {
@@ -64,7 +67,6 @@ export default class EventComponent extends Component {
           eventPrices.push(responseJson._embedded.events[i].priceRanges);
         }
         this.setState({ eventArr: eventList });
-        console.log(eventPrices);
       })
       .catch(error => {
         console.error(error);
@@ -97,22 +99,33 @@ export default class EventComponent extends Component {
 
   _priceRangesVerify(item) {
     try {
-      return (
-        <Text>
-          {item.priceRanges[0].min} - {item.priceRanges[0].max}
-        </Text>
-      );
-      throw new Error("Price TBA");
+      var min = item.priceRanges[0].min
+      var max = item.priceRanges[0].max
+
+      if (min == max) {
+        return (
+          <Text>
+            ${min.toFixed(2)}
+          </Text>
+        )
+      }
+      else {
+        return (
+          <Text>
+            ${min.toFixed(2)} - ${max.toFixed(2)}
+          </Text>
+        );
+      }
     } catch (e) {
       return <Text>Price TBA</Text>;
     }
   }
 
-  _findHighResPicture(item) {
+  _findHighResPicture(item, qualityValue) {
     let url = "";
-    for (var picObj in item.images) {
-      if (picObj.width > 1000) {
-        return picObj.url;
+    for (var i in item.images) {
+      if (item.images[i].width > qualityValue) {
+        return item.images[i].url;
       }
     }
     return url;
@@ -120,7 +133,6 @@ export default class EventComponent extends Component {
 
   render() {
     var isLoading = this.state.isLoading;
-    var geohash = this.state.geohashLocation;
 
     if (isLoading) {
       return (
@@ -140,7 +152,15 @@ export default class EventComponent extends Component {
           <View style={styles.searchNav}>
             <TextInput
               style={styles.textInputBox}
-              placeholder="   Search..."
+              placeholder=" Search..."
+              onSubmitEditing={event => {
+                try {
+                  this.setState({ searchTerm: event.nativeEvent.text })
+                  this.getData(this.state.geohashLocation, this.state.radiusValue, event.nativeEvent.text)
+                } catch (error) {
+                  console.log(error)
+                }
+              }}
             ></TextInput>
             <View style={styles.optionStyle}>
               <Picker
@@ -148,7 +168,7 @@ export default class EventComponent extends Component {
                 selectedValue={this.state.radiusValue}
                 onValueChange={itemValue => {
                   this.setState({ radiusValue: itemValue });
-                  this.getData(this.state.geohashLocation, itemValue);
+                  this.getData(this.state.geohashLocation, itemValue, this.state.searchTerm);
                 }}
               >
                 <Picker.Item label="50 KM" value="50" />
@@ -157,14 +177,11 @@ export default class EventComponent extends Component {
                 <Picker.Item label="5 KM" value="5" />
               </Picker>
             </View>
-            {/* <TouchableOpacity style={styles.buttonStyle}>
-              <View>
-                <Text>Filter</Text>
-              </View>
-            </TouchableOpacity> */}
+
           </View>
           <FlatList
             data={this.state.eventArr}
+            extraData={this.state.eventArr}
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => {
@@ -175,15 +192,14 @@ export default class EventComponent extends Component {
                 }}
               >
                 <Card
-                  image={{ uri: this._findHighResPicture(item) }}
+                  image={{ uri: this._findHighResPicture(item, this.state.qualityValue) }}
                   imageStyle={{
                     width: 200,
                     height: 200
                   }}
-                  // title={item.name}
+                  title={item.name}
                 >
                   <View>
-                    <Text>{item.name}</Text>
                     {this._priceRangesVerify(item)}
                     <Text>
                       {item._embedded.venues[0].address.line1},{" "}
@@ -200,7 +216,7 @@ export default class EventComponent extends Component {
               </TouchableOpacity>
             )}
           />
-        </View>
+        </View >
       );
     }
   }
