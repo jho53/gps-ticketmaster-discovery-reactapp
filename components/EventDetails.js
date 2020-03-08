@@ -26,11 +26,23 @@ export default class EventDetails extends Component {
 
   _priceRangesVerify(item) {
     try {
-      return (
-        <Text>
-          {item.priceRanges[0].min.toFixed(2)} - {item.priceRanges[0].max.toFixed(2)}
-        </Text>
-      );
+      var min = item.priceRanges[0].min
+      var max = item.priceRanges[0].max
+
+      if (min == max) {
+        return (
+          <Text>
+            ${min.toFixed(2)}
+          </Text>
+        )
+      }
+      else {
+        return (
+          <Text>
+            ${min.toFixed(2)} - ${max.toFixed(2)}
+          </Text>
+        );
+      }
     } catch (e) {
       return <Text>Price TBA</Text>;
     }
