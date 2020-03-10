@@ -1,1 +1,2 @@
-# gps-ticketmaster-discovery-reactapp
+# Ticketmaster Event Discovery with GPS Mobile Application
+
