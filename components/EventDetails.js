@@ -6,7 +6,8 @@ import {
   ActivityIndicator,
   TouchableOpacity
 } from "react-native";
-
+import { Divider } from "react-native-elements";
+import { EvilIcons, MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import styles from "../styles/stylesheet";
 
 export default class EventDetails extends Component {
@@ -26,25 +27,48 @@ export default class EventDetails extends Component {
 
   _priceRangesVerify(item) {
     try {
-      var min = item.priceRanges[0].min
-      var max = item.priceRanges[0].max
+      var min = item.priceRanges[0].min;
+      var max = item.priceRanges[0].max;
 
       if (min == max) {
         return (
-          <Text>
-            ${min.toFixed(2)}
-          </Text>
-        )
-      }
-      else {
+          <View style={{ flexDirection: "row" }}>
+            <FontAwesome
+              size={20}
+              color={"grey"}
+              name="ticket"
+              style={{ marginVertical: 2.5, marginHorizontal: 2 }}
+            />
+            <Text style={styles.iconText}>${min.toFixed(2)}</Text>
+          </View>
+        );
+      } else {
         return (
-          <Text>
-            ${min.toFixed(2)} - ${max.toFixed(2)}
-          </Text>
+          <View style={{ flexDirection: "row" }}>
+            <FontAwesome
+              size={20}
+              color={"grey"}
+              name="ticket"
+              style={{ marginVertical: 2.5, marginHorizontal: 2 }}
+            />
+            <Text style={styles.iconText}>
+              ${min.toFixed(2)} to ${max.toFixed(2)}
+            </Text>
+          </View>
         );
       }
     } catch (e) {
-      return <Text>Price TBA</Text>;
+      return (
+        <View style={{ flexDirection: "row" }}>
+          <FontAwesome
+            size={20}
+            color={"grey"}
+            name="ticket"
+            style={{ marginVertical: 2.5, marginHorizontal: 2 }}
+          />
+          <Text style={styles.iconText}>Price TBA</Text>
+        </View>
+      );
     }
   }
 
@@ -56,6 +80,10 @@ export default class EventDetails extends Component {
       }
     }
     return url;
+  }
+
+  _createDivider() {
+    return <Divider style={{ backgroundColor: "black", margin: 10 }} />;
   }
 
   render() {
@@ -75,42 +103,82 @@ export default class EventDetails extends Component {
           <Image
             style={{
               width: "100%",
-              height: "100%",
+              height: "auto",
               flex: 1
             }}
-            source={{ uri: this._findHighResPicture(item, this.state.qualityValue) }}
+            source={{
+              uri: this._findHighResPicture(item, this.state.qualityValue)
+            }}
           />
           <View style={{ flex: 1.5 }}>
-            <Text>{item.name}</Text>
+            <Text style={styles.eventTitle}>{item.name}</Text>
+            <View style={{ flexDirection: "row" }}>
+              <EvilIcons
+                size={25}
+                color={"grey"}
+                name="location"
+                style={{ marginVertical: 2.5 }}
+              />
+              <Text style={styles.iconText}>
+                {item._embedded.venues[0].address.line1} at{" "}
+                {item._embedded.venues[0].name},{" "}
+                {item._embedded.venues[0].city.name}{" "}
+                {item._embedded.venues[0].state.stateCode}
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <MaterialIcons
+                size={20}
+                color={"grey"}
+                name="gps-fixed"
+                style={{ marginVertical: 2.5, marginHorizontal: 2 }}
+              />
+              <Text style={styles.iconText}>
+                {item._embedded.venues[0].distance} km from your location
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <EvilIcons
+                size={25}
+                color={"grey"}
+                name="calendar"
+                style={{ marginVertical: 2.5 }}
+              />
+              <Text style={styles.iconText}>
+                {item.dates.start.localDate}{" "}
+                {item.dates.start.localTime
+                  ? "at " + item.dates.start.localTime
+                  : "| All Day Event"}
+              </Text>
+            </View>
             {this._priceRangesVerify(item)}
-            <Text>{item._embedded.venues[0].address.line1}</Text>
-            <Text>
-              {item._embedded.venues[0].name} in{" "}
-              {item._embedded.venues[0].city.name},{" "}
-              {item._embedded.venues[0].state.stateCode}
-            </Text>
-            <Text>
-              {item._embedded.venues[0].distance} km from your location
-            </Text>
-            <Text>
-              Starting {item.dates.start.localDate} at{" "}
-              {item.dates.start.localTime}
-            </Text>
-          </View>
-          <View style={{ alignItems: "center", borderColor: "red", borderWidth: 2, bottom: 40 }}>
-            <TouchableOpacity
-              onPress={() => {
-                this.props.navigation.navigate("EventWebView", {
-                  eventUrl: item.url
-                })
+
+            {/** End of Essential Info */}
+            {this._createDivider()}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                marginVertical: 25
               }}
             >
-              <View style={styles.buttonStyle}>
-                <Text style={{ fontSize: 16, color: "white" }}>Purchase Tickets</Text>
-              </View>
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate("EventWebView", {
+                    eventUrl: item.url
+                  });
+                }}
+              >
+                <View style={styles.buttonStyle}>
+                  <Text style={{ fontSize: 15, color: "white" }}>
+                    Purchase Tickets
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View >
+        </View>
       );
     }
   }

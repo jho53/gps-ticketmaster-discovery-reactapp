@@ -4,7 +4,8 @@ export default StyleSheet.create({
   container: {
     width: "100%",
     height: "100%",
-    backgroundColor: "#ecf0f1"
+    backgroundColor: "#ecf0f1",
+    flex: 1
   },
   logo: {
     justifyContent: "center",
@@ -24,7 +25,7 @@ export default StyleSheet.create({
     flex: 3,
     margin: 5,
     borderRadius: 180,
-    paddingHorizontal: 5
+    paddingHorizontal: 10
   },
   optionStyle: {
     flex: 2,
@@ -33,11 +34,21 @@ export default StyleSheet.create({
     margin: 5,
     borderRadius: 180
   },
+  /** Event Details */
+  eventTitle: {
+    fontSize: 24,
+    fontWeight: "500",
+    marginHorizontal: 5,
+    marginVertical: 15
+  },
+  iconText: {
+    alignSelf: "center"
+  },
   buttonStyle: {
     backgroundColor: "#019CDE",
     height: 40,
     padding: 10,
     marginHorizontal: 10,
-    borderRadius: 180,
+    borderRadius: 180
   }
 });

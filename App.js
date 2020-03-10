@@ -18,19 +18,24 @@ const EventStack = createStackNavigator(
     EventDetails: {
       screen: EventDetails,
       navigationOptions: {
-        title: "Back to Events",
-        headerStyle: {
-          backgroundColor: "#019CDE",
-        },
-        headerTintColor: "white"
+        title: "Back to Events"
       }
     },
     EventWebView: {
-      screen: EventWebView
+      screen: EventWebView,
+      navigationOptions:{
+        title: "Back to Event Details"
+      }
     }
   },
   {
-    initialRouteName: "EventHome"
+    initialRouteName: "EventHome",
+    defaultNavigationOptions: {
+      headerStyle: {
+        backgroundColor: "#019CDE"
+      },
+      headerTintColor: "white"
+    }
   }
 );
 
